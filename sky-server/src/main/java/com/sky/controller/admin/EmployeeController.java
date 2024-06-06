@@ -118,5 +118,14 @@ public class EmployeeController {
 
     }
 
+    @ApiOperation("change the employee status")
+    @PostMapping("/status/{status}")
+    public Result updateStatus(@PathVariable("status") Integer status, Long id){
+        log.info(" change the status:{},{}",status,id);
+        employeeService.updateStatus(status,id);
+
+        return Result.success();
+    }
+
 
 }
