@@ -13,7 +13,9 @@ import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,6 +97,24 @@ public class EmployeeController {
     public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO){// use a new vo to accept the data from F
         PageResult pageResult=employeeService.pageQuery(employeePageQueryDTO);// return a PageResult object
         return Result.success(pageResult);
+
+    }
+
+    @ApiOperation(" get employee by id")
+    @GetMapping("/{id}")
+    public Result<Employee> getById(@PathVariable Long id){// use a new vo to accept the data from F Employee employee=employeeService.getById(id);// return a PageResult object
+
+        Employee employee=employeeService.getById(id);
+        return Result.success(employee);
+
+    }
+
+    @ApiOperation(" update the employee")
+    @PutMapping()
+    public Result update(@RequestBody EmployeeDTO employeeDTO){// use a new vo to accept the data from F
+        log.info("update......",employeeDTO);
+        employeeService.update(employeeDTO);
+        return Result.success();
 
     }
 
