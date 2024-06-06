@@ -6,3 +6,8 @@ sky:
     database: sky_take_out
     username: root
     password: Wyx20160724
+  alioss:
+    access-key-id: LTAI5t6PZxnMofxhHPcVkFbL
+    endpoint: "oss-us-east-1.aliyuncs.com"
+    access-key-secret: 9huA21YtuE6LOu8jsGApWDnMyxvJcy
+    bucket-name: rockville-srb
