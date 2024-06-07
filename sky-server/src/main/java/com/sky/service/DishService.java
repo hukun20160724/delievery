@@ -2,6 +2,7 @@ package com.sky.service;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.vo.DishVO;
 
@@ -30,4 +31,6 @@ public interface DishService {
     void updateWithFlavor(DishDTO dishDTO);
 
     void updateStatus(Long id, Integer status);
+
+    List<Dish> getListBycategoryId(Long categoryId);
 }
