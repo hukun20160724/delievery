@@ -1,6 +1,8 @@
 package com.sky.service;
 
 import com.sky.dto.SetmealDTO;
+import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.result.PageResult;
 
 /**
  * ClassName: SetmealService
@@ -13,4 +15,6 @@ import com.sky.dto.SetmealDTO;
  */
 public interface SetmealService {
     void saveWithDish(SetmealDTO setmealDTO);
+
+    PageResult page(SetmealPageQueryDTO setmealPageQueryDTO);
 }
