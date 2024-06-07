@@ -77,4 +77,12 @@ public class DishController {
 
         return Result.success();
     }
+    @ApiOperation(" update a dish status")
+    @PostMapping("/status/{status}")
+    public Result update(Long id,@PathVariable("status") Integer status){//需要在地址栏的参数 才加PathVariable
+        log.info(" update a dish status..........{}",id,status);
+        dishService.updateStatus(id,status);
+
+        return Result.success();
+    }
 }
