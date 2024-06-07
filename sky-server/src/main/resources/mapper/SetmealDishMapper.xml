@@ -4,7 +4,6 @@
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
 
 
-
     <select id="getSetmealIdsByDishIds" resultType="java.lang.Long">
         select setmeal_id
         from setmeal_dish
@@ -22,4 +21,12 @@
             (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
         </foreach>
     </insert>
+
+    <delete id="deleteBathBySetmealId">
+        delete from setmeal_dish where setmeal_id in
+        <foreach collection="ids" item="setmealid" separator="," open="(" close=")">
+            #{setmealid}
+        </foreach>
+    </delete>
+
 </mapper>
