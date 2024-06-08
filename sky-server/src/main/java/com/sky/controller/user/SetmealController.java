@@ -32,7 +32,7 @@ public class SetmealController {
     public Result<List<Setmeal>> list(Long categoryId) {
         Setmeal setmeal = new Setmeal();
         setmeal.setCategoryId(categoryId);
-        setmeal.setStatus(StatusConstant.ENABLE);
+        setmeal.setStatus(StatusConstant.ENABLE);//查询在售套餐
 
         List<Setmeal> list = setmealService.list(setmeal);
         return Result.success(list);

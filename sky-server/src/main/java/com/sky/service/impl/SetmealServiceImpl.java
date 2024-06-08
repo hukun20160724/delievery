@@ -142,7 +142,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public List<Setmeal> list(Setmeal setmeal) {
 
-        List<Setmeal> list = setmealMapper.list(setmeal);
+        List<Setmeal> list = setmealMapper.list(setmeal);//直接查询，
         return list;
 
     }
@@ -153,6 +153,6 @@ public class SetmealServiceImpl implements SetmealService {
      * @return
      */
     public List<DishItemVO> getDishItemById(Long id) {
-        return setmealMapper.getDishItemBySetmealId(id);
+        return setmealMapper.getDishItemBySetmealId(id);//根据给定的套餐的ID， 两表联查，setmeal_dish 表和dish表，条件是dish_id
     }
 }
