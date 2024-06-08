@@ -16,6 +16,7 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -50,7 +51,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Transactional
     public void saveWithDish(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
-        BeanUtils.copyProperties(setmealDTO,setmeal);// 将传入的数据先放进套餐表中
+        BeanUtils.copyProperties(setmealDTO, setmeal);// 将传入的数据先放进套餐表中
         setmealMapper.insert(setmeal);
 
         //get the setmeal id
@@ -74,17 +75,17 @@ public class SetmealServiceImpl implements SetmealService {
         PageHelper.startPage(page, pageSize);
         // setmeal entity didnot have the categoryName, so need a new vo
         Page<SetmealVO> page1 = setmealMapper.pageQuery(setmealPageQueryDTO);
-        return new PageResult(page1.getTotal(),page1.getResult());
+        return new PageResult(page1.getTotal(), page1.getResult());
     }
 
     @Override
     public void updateStatus(Long id, Integer status) {
         //if we wang to start
-        if (status==StatusConstant.ENABLE){
+        if (status == StatusConstant.ENABLE) {
             //check the dish in this setmeal
             List<Dish> dishes = dishMapper.getBySetmealId(id);
             dishes.forEach(dish -> {
-                if (dish.getStatus()==StatusConstant.DISABLE){//某个菜品停售
+                if (dish.getStatus() == StatusConstant.DISABLE) {//某个菜品停售
                     throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
                 }
             });
@@ -98,14 +99,14 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public void deleteBatch(List<Long> ids) {
-        ids.forEach(id->{
-            Setmeal setmeal=setmealMapper.getById(id);
-            if (setmeal.getStatus()== StatusConstant.ENABLE){
-                throw  new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+        ids.forEach(id -> {
+            Setmeal setmeal = setmealMapper.getById(id);
+            if (setmeal.getStatus() == StatusConstant.ENABLE) {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
             }
         });
-      setmealMapper.deleteBath(ids);
-      setmealDishMapper.deleteBathBySetmealId(ids);
+        setmealMapper.deleteBath(ids);
+        setmealDishMapper.deleteBathBySetmealId(ids);
 
     }
 
@@ -113,7 +114,7 @@ public class SetmealServiceImpl implements SetmealService {
     public SetmealVO getByIdWithDish(Long id) {
         Setmeal setmeal = setmealMapper.getById(id);
         SetmealVO setmealVO = new SetmealVO();
-        BeanUtils.copyProperties(setmeal,setmealVO);
+        BeanUtils.copyProperties(setmeal, setmealVO);
 
         // get the setmealdish
         List<SetmealDish> setmealIdsByDishIds = setmealDishMapper.getBySetmealId(id);
@@ -125,7 +126,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Transactional
     public void update(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();//new an object
-        BeanUtils.copyProperties(setmealDTO,setmeal);
+        BeanUtils.copyProperties(setmealDTO, setmeal);
         setmealMapper.update(setmeal);
 
         // update the setmealdish
@@ -136,5 +137,22 @@ public class SetmealServiceImpl implements SetmealService {
             setmealDish.setSetmealId(setmealId);
         });
         setmealDishMapper.insertBatch(setmealDishes);
+    }
+
+    @Override
+    public List<Setmeal> list(Setmeal setmeal) {
+
+        List<Setmeal> list = setmealMapper.list(setmeal);
+        return list;
+
+    }
+
+    /**
+     * 根据id查询菜品选项
+     * @param id
+     * @return
+     */
+    public List<DishItemVO> getDishItemById(Long id) {
+        return setmealMapper.getDishItemBySetmealId(id);
     }
 }
