@@ -46,4 +46,6 @@ public interface ShoppingCartMapper {
     void deletBydishId(Long dishId);
     @Delete("delete from shopping_cart where setmeal_id=#{setmealId}")
     void deletBydsetmealId(Long setmealId);
+
+
 }
