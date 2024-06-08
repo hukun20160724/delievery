@@ -92,4 +92,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<ShoppingCart> shoppingCartList=shoppingCartMapper.list(shoppingCart);
         return shoppingCartList;
     }
+
+    @Override
+    public void clean() {
+        ShoppingCart shoppingCart = ShoppingCart.builder().userId(BaseContext.getCurrentId()).build();
+        shoppingCartMapper.clean(shoppingCart);
+    }
 }

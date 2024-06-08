@@ -49,4 +49,13 @@ public class UserShoppingController {
         return Result.success(list);
     }
 
+    // post /user/shoppingCart/sub
+    @ApiOperation(" clean an item from cart")
+    @DeleteMapping("/clean")
+    public Result cleanShoppingCart(){
+        shoppingCartService.clean();
+        return Result.success();
+
+    }
+
 }
