@@ -14,9 +14,11 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * ClassName: DishController
@@ -36,64 +38,87 @@ public class DishController {
     @Autowired
     private DishService dishService;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
     @ApiOperation(" get the dish list")
     @GetMapping("/page")
-    public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO){
+    public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO) {
         log.info(" get the dish list ");
-        PageResult pageResult=dishService.pageQuery(dishPageQueryDTO);
+        PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
         return Result.success(pageResult);
     }
 
     @ApiOperation(" add a new dish")
     @PostMapping()
-    public Result save(@RequestBody DishDTO dishDTO){
+    public Result save(@RequestBody DishDTO dishDTO) {
         log.info(" start add a new dish.......");
         dishService.saveWithFlavor(dishDTO);
+        //clean old data
+        String key = "dish_" + dishDTO.getCategoryId();
+        cleanCache(key);
         return Result.success();
     }
 
     //DELETE http://localhost/api/dish?ids=71
     @ApiOperation(" delete a dish")
     @DeleteMapping()
-    public Result delete(@RequestParam List<Long> ids){
-        log.info(" delete a dish.......{}",ids);
+    public Result delete(@RequestParam List<Long> ids) {
+        log.info(" delete a dish.......{}", ids);
         dishService.deleteBatch(ids);
+
+        //clean all dish data
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
     @ApiOperation(" get dish by id")
     @GetMapping("/{id}")
-    public Result<DishVO> getById(@PathVariable("id") Long id){
+    public Result<DishVO> getById(@PathVariable("id") Long id) {
         log.info(" get dish by id.......");
-        DishVO dishVO=dishService.getByIdWithFlavor(id);
+        DishVO dishVO = dishService.getByIdWithFlavor(id);
         return Result.success(dishVO);
     }
 
 
     @ApiOperation(" update a dish")
     @PutMapping
-    public Result update(@RequestBody DishDTO dishDTO){
-        log.info(" update a dish..........{}",dishDTO);
+    public Result update(@RequestBody DishDTO dishDTO) {
+        log.info(" update a dish..........{}", dishDTO);
         dishService.updateWithFlavor(dishDTO);
 
+        //clean all dish data
+        cleanCache("dish_*");
+        
+        
         return Result.success();
     }
+
     @ApiOperation(" update a dish status")
     @PostMapping("/status/{status}")
-    public Result update(Long id,@PathVariable("status") Integer status){//需要在地址栏的参数 才加PathVariable
-        log.info(" update a dish status..........{}",id,status);
-        dishService.updateStatus(id,status);
+    public Result update(Long id, @PathVariable("status") Integer status) {//需要在地址栏的参数 才加PathVariable
+        log.info(" update a dish status..........{}", id, status);
+        dishService.updateStatus(id, status);
 
+        //TODO clean the special one
+        //clean all dish data
+        cleanCache("dish_*");
+        
         return Result.success();
     }
 
     // get method: http://localhost/api/dish/list?categoryId=17
     @ApiOperation("get dish list by categoryid")
     @GetMapping("/list")
-    public  Result<List<Dish>> list(Long categoryId){
-        List<Dish> dishes=dishService.getListBycategoryId(categoryId);
+    public Result<List<Dish>> list(Long categoryId) {
+        List<Dish> dishes = dishService.getListBycategoryId(categoryId);
         return Result.success(dishes);
     }
 
-
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
+    }
+    
 }
