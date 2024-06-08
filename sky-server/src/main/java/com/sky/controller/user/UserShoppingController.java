@@ -55,7 +55,14 @@ public class UserShoppingController {
     public Result cleanShoppingCart(){
         shoppingCartService.clean();
         return Result.success();
-
     }
 
+    //Request URL: http://localhost:8080/user/shoppingCart/sub
+    //Request Method: POST
+    @ApiOperation(" clean an item from cart")
+    @PostMapping("/sub")
+    public Result subItem(@RequestBody ShoppingCartDTO shoppingCartDTO){
+       shoppingCartService.subItem(shoppingCartDTO);
+        return Result.success();
+    }
 }
