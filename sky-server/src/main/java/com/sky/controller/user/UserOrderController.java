@@ -98,5 +98,13 @@ public class UserOrderController {
         orderService.repetition(id);
         return Result.success();
     }
+    // get /user/order/reminder/{id}
+
+    @ApiOperation(" reminder the order ")
+    @GetMapping("/reminder/{id}")
+    public Result reminder(@PathVariable("id") Long id){
+        orderService.reminder(id);
+        return Result.success();
+    }
 
 }

@@ -254,4 +254,9 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartMapper.insertBatches(shoppingCartList);
     }
 
+    @Override
+    public void reminder(Long id) {
+        //TODO reminder
+    }
+
 }
