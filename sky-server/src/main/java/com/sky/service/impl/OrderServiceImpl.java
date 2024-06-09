@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ClassName: OrderServiceImpl
@@ -259,4 +260,56 @@ public class OrderServiceImpl implements OrderService {
         //TODO reminder
     }
 
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(),ordersPageQueryDTO.getPageSize());//start page
+
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);//get the order list
+
+        //get orderVo list
+        List<OrderVO> orderVOList = getOrderVOList(page);
+
+        return new PageResult(page.getTotal(),orderVOList);
+    }
+
+    private List<OrderVO> getOrderVOList(Page<Orders> page) {
+        List<OrderVO>  orderVOList=new ArrayList<>();
+        List<Orders> ordersList = page.getResult();
+        for (Orders orders : ordersList) {
+            OrderVO orderVO = new OrderVO();
+            BeanUtils.copyProperties(orders,orderVO);
+            String orderDishesStr = getOrderDishesStr(orders);
+            orderVO.setOrderDishes(orderDishesStr);
+            String address = getAddress(orders);
+            orderVO.setAddress(address);
+            orderVOList.add(orderVO);
+        }
+        return orderVOList;
+    }
+
+    private String getAddress(Orders orders) {
+        AddressBook addressBook = addressBookMapper.getById(orders.getAddressBookId());
+        String address=addressBook.getProvinceName()+addressBook.getCityName()+addressBook.getDistrictName()+addressBook.getDetail();
+        return address;
+    }
+
+    /**
+     * 根据订单id获取菜品信息字符串
+     *
+     * @param orders
+     * @return
+     */
+    private String getOrderDishesStr(Orders orders) {
+        // 查询订单菜品详情信息（订单中的菜品和数量）
+        List<OrderDetail> orderDetailList = orderDetailMapper.getById(orders.getId());
+
+        // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
+        List<String> orderDishList = orderDetailList.stream().map(x -> {
+            String orderDish = x.getName() + "*" + x.getNumber() + ";";
+            return orderDish;
+        }).collect(Collectors.toList());
+
+        // 将该订单对应的所有菜品信息拼接在一起
+        return String.join("", orderDishList);
+    }
 }
