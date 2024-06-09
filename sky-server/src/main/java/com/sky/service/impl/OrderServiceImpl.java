@@ -343,6 +343,32 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Override
+    public void delivery(Long id) {
+        Orders order = orderMapper.getById(id);
+        Integer status = order.getStatus();
+        if (status==null || !status.equals(Orders.CONFIRMED)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Orders orders = new Orders();
+        orders.setId(order.getId());
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void complete(Long id) {
+        Orders order = orderMapper.getById(id);
+        Integer status = order.getStatus();
+        if (status==null || !status.equals(Orders.DELIVERY_IN_PROGRESS)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Orders orders = new Orders();
+        orders.setId(order.getId());
+        orders.setStatus(Orders.COMPLETED);
+        orderMapper.update(orders);
+    }
+
     private List<OrderVO> getOrderVOList(Page<Orders> page) {
         List<OrderVO>  orderVOList=new ArrayList<>();
         List<Orders> ordersList = page.getResult();
