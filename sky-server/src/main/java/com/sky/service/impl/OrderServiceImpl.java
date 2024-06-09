@@ -170,31 +170,88 @@ public class OrderServiceImpl implements OrderService {
         Page<Orders> pageResult = orderMapper.pageQuery(ordersPageQueryDTO);// get data with id
         List<OrderVO> list = new ArrayList<>();
         // get order details
-        if (pageResult!=null &&pageResult.getTotal()>0){
+        if (pageResult != null && pageResult.getTotal() > 0) {
             for (Orders orders : pageResult) {
                 //get each order
                 Long ordersId = orders.getId();
-                List<OrderDetail> orderDetails=orderDetailMapper.getById(ordersId);
+                List<OrderDetail> orderDetails = orderDetailMapper.getById(ordersId);
                 OrderVO orderVO = new OrderVO();
-                BeanUtils.copyProperties(orders,orderVO);
+                BeanUtils.copyProperties(orders, orderVO);
                 orderVO.setOrderDetailList(orderDetails);
 
                 list.add(orderVO);
             }
         }
-        return new PageResult(pageResult.getTotal(),list);
+        return new PageResult(pageResult.getTotal(), list);
     }
 
     @Override
     public OrderVO details(Long id) {
         // get the order table
-       Orders orders= orderMapper.getById(id);
+        Orders orders = orderMapper.getById(id);
         // get the orderdetails table
         List<OrderDetail> orderDetailList = orderDetailMapper.getById(id);
         OrderVO orderVO = new OrderVO();
-        BeanUtils.copyProperties(orders,orderVO);
+        BeanUtils.copyProperties(orders, orderVO);
         orderVO.setOrderDetailList(orderDetailList);
         return orderVO;
+    }
+
+    @Override
+    public void cancleOrder(Long id) {
+        /**
+         * 待支付和待接单状态下，用户可直接取消订单
+         * - 商家已接单状态下，用户取消订单需电话沟通商家
+         * - 派送中状态下，用户取消订单需电话沟通商家
+         * - 如果在待接单状态下取消订单，需要给用户退款
+         * - 取消订单后需要将订单状态修改为“已取消”
+         */
+        Orders order = orderMapper.getById(id);
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Integer status = order.getStatus();
+        //订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        if (status > 2) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        //<=2
+        Orders orders = new Orders();
+        orders.setId(order.getId());
+        if (status.equals(Orders.TO_BE_CONFIRMED)){
+            //
+            //调用微信支付退款接口
+           /* weChatPayUtil.refund(
+                    ordersDB.getNumber(), //商户订单号
+                    ordersDB.getNumber(), //商户退款单号
+                    new BigDecimal(0.01),//退款金额，单位 元
+                    new BigDecimal(0.01));//原订单金额*/
+            orders.setPayStatus(Orders.REFUND);
+        }
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("user canceled");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+
+    }
+
+    @Override
+    public void repetition(Long id) {
+        //get ordersdetail
+        List<OrderDetail> orderDetailList = orderDetailMapper.getById(id);
+
+        Long currentId = BaseContext.getCurrentId();
+        //put orderDetailList into shopping cart
+        List<ShoppingCart> shoppingCartList=new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(orderDetail,shoppingCart);
+            shoppingCart.setUserId(currentId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            shoppingCartList.add(shoppingCart);
+        }
+
+        shoppingCartMapper.insertBatches(shoppingCartList);
     }
 
 }

@@ -48,4 +48,5 @@ public interface ShoppingCartMapper {
     void deletBydsetmealId(Long setmealId);
 
 
+    void insertBatches(List<ShoppingCart> shoppingCartList);
 }

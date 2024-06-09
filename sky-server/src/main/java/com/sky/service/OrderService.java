@@ -26,4 +26,8 @@ public interface OrderService {
     PageResult getOrderHistory(int page, int pageSize, Integer status);
 
     OrderVO details(Long id);
+
+    void cancleOrder(Long id);
+
+    void repetition(Long id);
 }
