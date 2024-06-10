@@ -41,4 +41,6 @@ public interface OrderMapper {
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
 
     Double getAmount(Map map);
+
+    Integer getOrderCount(Map map);
 }
