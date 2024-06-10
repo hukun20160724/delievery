@@ -15,14 +15,13 @@ import java.util.Date;
  * @Create 6/10/24 13:53
  * @Version 1.0
  */
-@Component
-@Slf4j
+//
 public class MyTask {
     /**
      * 定时任务 每隔5秒触发一次
      */
-    @Scheduled(cron = "0/5 * * * * ?")
+    /*@Scheduled(cron = "0/5 * * * * ?")
     public void executeTask(){
         log.info("定时任务开始执行：{}",new Date());
-    }
+    }*/
 }

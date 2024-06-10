@@ -1,0 +1,2 @@
+AppID(小程序ID)	wx396a10cdbe26eb47
+key: a35e5b16c0d636e1a45a5c11c735254f
