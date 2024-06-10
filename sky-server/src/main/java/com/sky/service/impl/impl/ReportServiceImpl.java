@@ -2,11 +2,13 @@ package com.sky.service.impl.impl;
 
 import com.github.pagehelper.dialect.helper.HsqldbDialect;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * ClassName: ReportServiceImpl
@@ -128,12 +131,13 @@ public class ReportServiceImpl implements ReportService {
         }
         //时间区间内的总订单数
         Integer totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
+        //.reduce(Integer::sum)：使用reduce操作，这是一个归约操作，它会把Stream中的所有元素组合起来。在这里，它使用Integer::sum方法引用，该方法引用指向Integer类的静态方法sum
         //时间区间内的总有效订单数
         Integer validOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
 
         //订单完成率
         Double orderCompletionRate = 0.0;
-        if(totalOrderCount != 0){
+        if (totalOrderCount != 0) {
             orderCompletionRate = validOrderCount.doubleValue() / totalOrderCount;
         }
         return OrderReportVO.builder()
@@ -146,19 +150,56 @@ public class ReportServiceImpl implements ReportService {
                 .build();
     }
 
+    @Override
+    public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
+
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        List<GoodsSalesDTO> goodsSalesDTOList = orderMapper.getSalesTop10(beginTime, endTime);
+
+        String nameList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList()),",");
+        String numberList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList()),",");
+
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
+                .build();
+       /* // 用于存储名字的列表
+        List<String> nameList = new ArrayList<>();
+        // 用于存储数字的列表
+        List<String> numberList = new ArrayList<>();
+
+        // 使用for循环遍历列表
+        for (GoodsSalesDTO goodsSalesDTO : goodsSalesDTOList) {
+            // 添加名字到列表中
+            nameList.add(goodsSalesDTO.getName());
+            // 添加数字到列表中
+            numberList.add(goodsSalesDTO.getNumber().toString()); // 假设getNumber返回的是一个数字类型，需要转换为字符串
+        }
+
+        // 使用StringUtils.join将列表转换为逗号分隔的字符串
+        String nameListString = StringUtils.join(nameList, ",");
+        String numberListString = StringUtils.join(numberList, ",");*/
+        //SalesTop10ReportVO salesTop10ReportVO = new SalesTop10ReportVO();
+       /* salesTop10ReportVO.setNameList(nameListString);
+        salesTop10ReportVO.setNumberList(numberListString);
+        return salesTop10ReportVO;*/
+
+    }
+
     private Integer getOrderCount(LocalDateTime beginTime, LocalDateTime endTime, Integer status) {
-       Map map= new HashMap<>();
-        map.put("begin",beginTime);
-        map.put("end",endTime);
-        map.put("status",status);
+        Map map = new HashMap<>();
+        map.put("begin", beginTime);
+        map.put("end", endTime);
+        map.put("status", status);
         return orderMapper.getOrderCount(map);
     }
 
     private Integer getUserCount(LocalDateTime beginTime, LocalDateTime endTime) {
 
         Map map = new HashMap<>();
-        map.put("begin",beginTime);
-        map.put("end",endTime);
+        map.put("begin", beginTime);
+        map.put("end", endTime);
         return userMapper.countUser(map);
 
     }
