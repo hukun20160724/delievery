@@ -1,10 +1,15 @@
 package com.sky.service.impl.impl;
 
+import com.sky.constant.StatusConstant;
 import com.sky.entity.Orders;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.WorkspaceService;
 import com.sky.vo.BusinessDataVO;
+import com.sky.vo.DishOverViewVO;
+import com.sky.vo.SetmealOverViewVO;
 import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     OrderMapper orderMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    SetmealMapper setmealMapper;
+    @Autowired
+    DishMapper dishMapper;
 
     @Override
     public BusinessDataVO getBusinessData(LocalDateTime begin, LocalDateTime end) {
@@ -63,5 +72,28 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .build();
 
 
+    }
+
+    @Override
+    public SetmealOverViewVO getSetmealOverViewVO() {
+
+        Integer sold=setmealMapper.countByStatus(StatusConstant.ENABLE);
+       Integer discontinued= setmealMapper.countByStatus(StatusConstant.DISABLE);
+
+        return SetmealOverViewVO.builder()
+                .sold(sold)
+                .discontinued(discontinued)
+                .build();
+    }
+
+    @Override
+    public DishOverViewVO getoverviewDishes() {
+        Integer sold=dishMapper.countByStatus(StatusConstant.ENABLE);
+        Integer discontinued= dishMapper.countByStatus(StatusConstant.DISABLE);
+
+        return DishOverViewVO.builder()
+                .sold(sold)
+                .discontinued(discontinued)
+                .build();
     }
 }
