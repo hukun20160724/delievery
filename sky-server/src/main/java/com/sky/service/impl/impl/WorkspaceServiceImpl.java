@@ -9,6 +9,7 @@ import com.sky.mapper.UserMapper;
 import com.sky.service.WorkspaceService;
 import com.sky.vo.BusinessDataVO;
 import com.sky.vo.DishOverViewVO;
+import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.SetmealOverViewVO;
 import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,6 +96,40 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         return DishOverViewVO.builder()
                 .sold(sold)
                 .discontinued(discontinued)
+                .build();
+    }
+
+    @Override
+    public OrderOverViewVO getOrderOverView() {
+        Map map = new HashMap();
+        map.put("begin", LocalDateTime.now().with(LocalTime.MIN));
+        map.put("status", Orders.TO_BE_CONFIRMED);
+
+        //待接单
+        Integer waitingOrders = orderMapper.getOrderCount(map);
+
+        //待派送
+        map.put("status", Orders.CONFIRMED);
+        Integer deliveredOrders = orderMapper.getOrderCount(map);
+
+        //已完成
+        map.put("status", Orders.COMPLETED);
+        Integer completedOrders = orderMapper.getOrderCount(map);
+
+        //已取消
+        map.put("status", Orders.CANCELLED);
+        Integer cancelledOrders = orderMapper.getOrderCount(map);
+
+        //全部订单
+        map.put("status", null);
+        Integer allOrders = orderMapper.getOrderCount(map);
+
+        return OrderOverViewVO.builder()
+                .waitingOrders(waitingOrders)
+                .deliveredOrders(deliveredOrders)
+                .completedOrders(completedOrders)
+                .cancelledOrders(cancelledOrders)
+                .allOrders(allOrders)
                 .build();
     }
 }
