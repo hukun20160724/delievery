@@ -26,11 +26,10 @@ public class OrderTask {
     @Autowired
     private OrderMapper orderMapper;
 
-    @Scheduled(cron = "0 * * * * ? ")//each min
+    @Scheduled(cron = "0 0/5 * * * ?")//5 min
     public void processTimeoutOrder(){
         log.info(" handle timeout order.....");
         // check the order status
-
         List<Orders> byStatusAndOrderTimeLT = orderMapper.getByStatusAndOrderTimeLT(Orders.PENDING_PAYMENT, LocalDateTime.now().plusMinutes(-15));
         if (byStatusAndOrderTimeLT!=null && byStatusAndOrderTimeLT.size()>0){
             for (Orders order : byStatusAndOrderTimeLT) {
