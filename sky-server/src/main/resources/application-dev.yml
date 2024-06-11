@@ -5,21 +5,21 @@ sky:
     port: 3306
     database: sky_take_out
     username: root
-    password: Wyx20160724
+    password: your password
   alioss:
-    access-key-id: LTAI5t6PZxnMofxhHPcVkFbL
-    endpoint: "oss-us-east-1.aliyuncs.com"
-    access-key-secret: 9huA21YtuE6LOu8jsGApWDnMyxvJcy
-    bucket-name: rockville-srb
+    access-key-id: your own key
+    endpoint: your end point
+    access-key-secret: your key
+    bucket-name: your buck name
   redis:
     port: 6379
     password: 123456
     host: localhost
     database: 1
   wechat:
-    appid: wx396a10cdbe26eb47
-    secret: a35e5b16c0d636e1a45a5c11c735254f
+    appid: your wechat appid
+    secret: your secret
   shop:
     address: 北京市海淀区上地街10号
   baidu:
-    ak: zpp1fqeXVAZJrny4ZAFqj69KofoFvUmv
+    ak: your baidu ak
